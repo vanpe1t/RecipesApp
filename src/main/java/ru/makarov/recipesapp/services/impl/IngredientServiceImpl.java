@@ -15,9 +15,8 @@ public class IngredientServiceImpl implements IngredientService {
     private int lastId = 0;
 
     @Override
-    public void addIngredient(String name, int quantity, String mesure) {
-        Ingredient ingredient = new Ingredient(name, quantity, mesure);
-        recipeIngredient.put(lastId++, ingredient);
+    public void addIngredient(Ingredient ingredint) {
+        recipeIngredient.put(lastId++, ingredint);
     }
 
     @Override

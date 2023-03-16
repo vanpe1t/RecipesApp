@@ -14,10 +14,7 @@ public class RecipeServiceImpl implements RecipeService {
     private Map<Integer, Recipe> recipeMap = new HashMap<>();
     private int lastId = 0;
     @Override
-    public void addRecipe(String name, int coockingTime) {
-        ArrayList<Ingredient> ingredients = new ArrayList<>();
-        ArrayList<String> steps = new ArrayList<>();
-        Recipe recipe = new Recipe(name, coockingTime, steps, ingredients);
+    public void addRecipe(Recipe recipe) {
         recipeMap.put(lastId++, recipe);
     }
 

@@ -7,7 +7,7 @@ import ru.makarov.recipesapp.model.Recipe;
 
 public interface IngredientService {
 
-    void addIngredient(String name, int quantity, String mesure);
+    void addIngredient(Ingredient ingredint);
 
     Ingredient getIngredient(int id);
 
