@@ -1,14 +1,18 @@
 package ru.makarov.recipesapp.services;
 
 import ru.makarov.recipesapp.model.Ingredient;
-import ru.makarov.recipesapp.model.Recipe;
 
-
+import java.util.Map;
 
 public interface IngredientService {
 
-    void addIngredient(Ingredient ingredint);
+    int addIngredient(Ingredient ingredient);
 
     Ingredient getIngredient(int id);
+
+    Ingredient editIngredient(int id, Ingredient ingredient);
+
+    boolean deleteIngredient(int id);
+    public Map<Integer, Ingredient> getIIngredientList();
 
 }
