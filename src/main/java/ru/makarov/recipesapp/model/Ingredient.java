@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Ingredient {
 
-    private final String name;
+    private String name;
 
     private int weight;
 

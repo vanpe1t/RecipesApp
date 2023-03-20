@@ -1,5 +1,6 @@
 package ru.makarov.recipesapp.services.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.makarov.recipesapp.model.Ingredient;
 import ru.makarov.recipesapp.model.Recipe;
@@ -11,7 +12,7 @@ import java.util.Map;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
-    private Map<Integer, Recipe> recipeMap = new HashMap<>();
+    private final Map<Integer, Recipe> recipeMap = new HashMap<>();
     private int lastId = 0;
 
 
@@ -21,6 +22,7 @@ public class RecipeServiceImpl implements RecipeService {
         recipeMap.put(lastId, recipe);
         IngredientService ingredientService = new IngredientServiceImpl();
         for (Ingredient ingredient : recipe.getIngredients()) {
+            ingredient.setName(StringUtils.trim(ingredient.getName()));
             ingredientService.addIngredient(ingredient);
         }
         return lastId++;
@@ -46,7 +48,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public boolean deleteRecipe(int id) {
-        if (recipeMap.containsKey(id)) {
+         if (recipeMap.containsKey(id)) {
             recipeMap.remove(id);
             return true;
         }
