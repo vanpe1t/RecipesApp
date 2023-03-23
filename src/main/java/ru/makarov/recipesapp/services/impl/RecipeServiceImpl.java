@@ -1,35 +1,46 @@
 package ru.makarov.recipesapp.services.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.makarov.recipesapp.model.Ingredient;
 import ru.makarov.recipesapp.model.Recipe;
+import ru.makarov.recipesapp.services.FileService;
 import ru.makarov.recipesapp.services.IngredientService;
 import ru.makarov.recipesapp.services.RecipeService;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
-    private final Map<Integer, Recipe> recipeMap = new HashMap<>();
+    private LinkedHashMap<Integer, Recipe> recipeMap = new LinkedHashMap<>();
     private int lastId = 0;
 
+    private final FileService fileService;
 
+    public RecipeServiceImpl(FileService fileService) {
+        this.fileService = fileService;
+    }
+
+    @PostConstruct
+    private void init () {
+        readFromFile();
+    }
 
     @Override
     public int addRecipe(Recipe recipe) {
         recipeMap.put(lastId, recipe);
-        IngredientService ingredientService = new IngredientServiceImpl();
-        for (Ingredient ingredient : recipe.getIngredients()) {
-            ingredient.setName(StringUtils.trim(ingredient.getName()));
-            ingredientService.addIngredient(ingredient);
-        }
+        saveToFile();
         return lastId++;
     }
 
     @Override
-    public Map<Integer, Recipe> getRecipeList() {
+    public LinkedHashMap<Integer, Recipe> getRecipeList() {
         return recipeMap;
     }
     @Override
@@ -41,6 +52,7 @@ public class RecipeServiceImpl implements RecipeService {
     public Recipe editRecipe(int id, Recipe recipe) {
         if (recipeMap.containsKey(id)) {
             recipeMap.put(id, recipe);
+            saveToFile();
             return recipe;
         }
         return null;
@@ -53,5 +65,28 @@ public class RecipeServiceImpl implements RecipeService {
             return true;
         }
         return false;
+    }
+
+
+    private void saveToFile() {
+        try {
+            String json = new ObjectMapper().writeValueAsString(recipeMap);
+            fileService.SaveToFile(json, "recipe");
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void readFromFile() {
+        try {
+            String json = fileService.ReadFromFile("recipe");
+            if (json != null) {
+                recipeMap = new ObjectMapper().readValue(json, new TypeReference<LinkedHashMap<Integer, Recipe>>() {
+                });
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 }

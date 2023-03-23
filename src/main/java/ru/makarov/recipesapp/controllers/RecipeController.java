@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.makarov.recipesapp.model.Ingredient;
 import ru.makarov.recipesapp.model.Recipe;
+import ru.makarov.recipesapp.services.FileService;
 import ru.makarov.recipesapp.services.RecipeService;
 
 import java.util.ArrayList;
@@ -24,8 +25,11 @@ import java.util.Map;
 public class RecipeController {
     private final RecipeService recipeService;
 
-    public RecipeController(RecipeService recipeService) {
+    private final FileService fileService;
+
+    public RecipeController(RecipeService recipeService, FileService fileService) {
         this.recipeService = recipeService;
+        this.fileService = fileService;
     }
 
     @GetMapping("/test")
@@ -189,5 +193,6 @@ public class RecipeController {
 
         return ResponseEntity.notFound().build();
     }
+
 }
  
