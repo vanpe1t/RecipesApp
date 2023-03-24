@@ -61,6 +61,7 @@ public class IngredientServiceImpl implements IngredientService {
     public boolean deleteIngredient(int id) {
         if (recipeIngredients.containsKey(id)) {
             recipeIngredients.remove(id);
+            saveToFile();
             return true;
         }
         return false;
@@ -70,7 +71,7 @@ public class IngredientServiceImpl implements IngredientService {
     private void saveToFile() {
         try {
             String json = new ObjectMapper().writeValueAsString(recipeIngredients);
-            fileService.SaveToFile(json, "ingredient");
+            fileService.saveToFile(json, "ingredient");
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -78,7 +79,7 @@ public class IngredientServiceImpl implements IngredientService {
 
     private void readFromFile() {
         try {
-            String json = fileService.ReadFromFile("ingredient");
+            String json = fileService.readFromFile("ingredient");
             if (json != null) {
                 recipeIngredients = new ObjectMapper().readValue(json, new TypeReference<LinkedHashMap<Integer, Ingredient>>() {
                 });

@@ -62,6 +62,7 @@ public class RecipeServiceImpl implements RecipeService {
     public boolean deleteRecipe(int id) {
          if (recipeMap.containsKey(id)) {
             recipeMap.remove(id);
+            saveToFile();
             return true;
         }
         return false;
@@ -71,7 +72,7 @@ public class RecipeServiceImpl implements RecipeService {
     private void saveToFile() {
         try {
             String json = new ObjectMapper().writeValueAsString(recipeMap);
-            fileService.SaveToFile(json, "recipe");
+            fileService.saveToFile(json, "recipe");
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -79,7 +80,7 @@ public class RecipeServiceImpl implements RecipeService {
 
     private void readFromFile() {
         try {
-            String json = fileService.ReadFromFile("recipe");
+            String json = fileService.readFromFile("recipe");
             if (json != null) {
                 recipeMap = new ObjectMapper().readValue(json, new TypeReference<LinkedHashMap<Integer, Recipe>>() {
                 });

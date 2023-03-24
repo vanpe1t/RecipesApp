@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.makarov.recipesapp.services.FileService;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +21,8 @@ public class FileServiceImpl implements FileService {
     @Value("${name.of.data.file.ingredient}")
     private String ingredientFileName;
 
-    private Path getPath(String nameOfType) {
+    @Override
+    public Path getPath(String nameOfType) {
         Path path;
         if (nameOfType.equals("recipe")) {
             path = Path.of(dataFilePath, recipeFileName);
@@ -33,14 +35,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean SaveToFile(String jason, String nameOfType) {
+    public boolean saveToFile(String jason, String nameOfType) {
 
         Path path =  getPath(nameOfType);
         if (path == null) {
             return false;
         }
 
-        CleanDataFile(path);
+        cleanDataFile(path);
 
         try {
             Files.writeString(path, jason);
@@ -51,7 +53,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String ReadFromFile(String nameOfType) {
+    public String readFromFile(String nameOfType) {
 
         Path path =  getPath(nameOfType);
         if (path == null) {
@@ -66,7 +68,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void CleanDataFile(Path path) {
+    public void cleanDataFile(Path path) {
         try {
             Files.deleteIfExists(path);
             Files.createFile(path);
@@ -74,4 +76,10 @@ public class FileServiceImpl implements FileService {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public File getFile(String nameOfType) {
+        return new File(getPath(nameOfType).toString());
+    }
+
 }
