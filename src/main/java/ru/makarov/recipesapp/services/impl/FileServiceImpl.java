@@ -35,6 +35,22 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    public Path createRecipesFile() {
+
+        Path path = Path.of(dataFilePath, "recipes");
+
+        try {
+            Files.deleteIfExists(path);
+            Files.createFile(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return path;
+    }
+
+
+    @Override
     public boolean saveToFile(String jason, String nameOfType) {
 
         Path path =  getPath(nameOfType);

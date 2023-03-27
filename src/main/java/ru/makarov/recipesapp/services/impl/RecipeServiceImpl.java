@@ -3,18 +3,20 @@ package ru.makarov.recipesapp.services.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import ru.makarov.recipesapp.model.Ingredient;
 import ru.makarov.recipesapp.model.Recipe;
 import ru.makarov.recipesapp.services.FileService;
-import ru.makarov.recipesapp.services.IngredientService;
 import ru.makarov.recipesapp.services.RecipeService;
 
 import javax.annotation.PostConstruct;
-import java.util.HashMap;
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Service
 public class RecipeServiceImpl implements RecipeService {
@@ -37,6 +39,38 @@ public class RecipeServiceImpl implements RecipeService {
         recipeMap.put(lastId, recipe);
         saveToFile();
         return lastId++;
+    }
+
+    @Override
+    public File createAllRecipesFile() throws IOException {
+        Path path = fileService.createRecipesFile();
+        for (Recipe recipe: recipeMap.values()) {
+            try (Writer writer =  Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+                writer.append(recipe.getName());
+                writer.append("\n");
+                writer.append("Время приготовления :" + recipe.getCookingTime());
+                writer.append("\n");
+                writer.append("Ингридиенты :");
+                writer.append("\n");
+                if (recipe.getIngredients() != null) {
+                    for (Ingredient ingredient : recipe.getIngredients()) {
+                        writer.append(" * " + ingredient.getName() + "-" + ingredient.getWeight() + " " + ingredient.getMeasure());
+                        writer.append("\n");
+                    }
+                }
+                writer.append("Инструкция приготовления:");
+                writer.append("\n");
+                int count = 0;
+                if (recipe.getSteps() != null) {
+                    for (String step : recipe.getSteps()) {
+                        count++;
+                        writer.append(count + ". " + step);
+                        writer.append("\n");
+                    }
+                }
+            }
+        }
+        return new File(path.toString());
     }
 
     @Override

@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.makarov.recipesapp.model.Ingredient;
@@ -16,6 +19,7 @@ import ru.makarov.recipesapp.model.Recipe;
 import ru.makarov.recipesapp.services.FileService;
 import ru.makarov.recipesapp.services.RecipeService;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -32,6 +36,39 @@ public class RecipeController {
         this.fileService = fileService;
     }
 
+    @GetMapping("/export/all")
+    @Operation(
+            summary = "Получение файла.",
+            description = "Получаем все рецепты"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Файл получен.",
+                    content = {
+                            @Content(
+                                    mediaType = "file"
+                            )
+                    }
+            )
+    }
+    )
+    public ResponseEntity<InputStreamResource> downloadAllRecipes() throws FileNotFoundException, IOException {
+
+        File file = recipeService.createAllRecipesFile();
+
+        if (file.exists()) {
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .contentLength(file.length())
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename = recipes.txt")
+                    .body(resource);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
     @GetMapping("/test")
     @Operation(
             summary = "Тест для проверок.",
@@ -45,6 +82,7 @@ public class RecipeController {
 
         return ResponseEntity.ok(strings);
     }
+
     @PostMapping
     @Operation(
             summary = "Добавление рецепта.",
@@ -100,7 +138,7 @@ public class RecipeController {
             )
     }
     )
-    public ResponseEntity<Recipe>  getRecipe(@PathVariable int id) {
+    public ResponseEntity<Recipe> getRecipe(@PathVariable int id) {
         Recipe recipe = recipeService.getRecipe(id);
         if (recipe == null) {
             return ResponseEntity.notFound().build();
@@ -129,6 +167,7 @@ public class RecipeController {
     public ResponseEntity<Map<Integer, Recipe>> getIngredientList() {
         return ResponseEntity.ok(recipeService.getRecipeList());
     }
+
     @PutMapping("/{id}")
     @Operation(
             summary = "Редактируем рецепт.",
